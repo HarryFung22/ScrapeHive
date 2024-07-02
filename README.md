@@ -1,0 +1,2 @@
+# RubyDB
+Lightweight JSON database
