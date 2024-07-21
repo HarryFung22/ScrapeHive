@@ -1,2 +1,2 @@
-# RubyDB
-Lightweight JSON database
+# ScrapeHive
+Go Webserver with RSS Websrapper
