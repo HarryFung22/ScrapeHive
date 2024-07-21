@@ -1,0 +1,4 @@
+ScrapeHive.exe
+.env
+go.mod
+go.sum
