@@ -2,3 +2,4 @@ ScrapeHive.exe
 .env
 go.mod
 go.sum
+sqlc.yaml
