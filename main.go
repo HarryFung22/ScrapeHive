@@ -51,6 +51,7 @@ func main() {
 	rss.Get("/users", apiConf.middlewareAuth(apiConf.handleGetUser))
 
 	rss.Post("/feeds", apiConf.middlewareAuth(apiConf.handleCreateFeed))
+	rss.Get("/feeds", apiConf.handleGetFeeds)
 
 	router.Mount("/rss", rss)
 

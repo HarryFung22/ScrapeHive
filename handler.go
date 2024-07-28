@@ -76,3 +76,11 @@ func (apiCfg *apiConfig) handleCreateFeed(w http.ResponseWriter, r *http.Request
 
 	resJson(w, 201, DBFeedToFeed(feed))
 }
+
+func (apiCfg *apiConfig) handleGetFeeds(w http.ResponseWriter, r *http.Request) {
+	feeds, err := apiCfg.DB.GetFeeds(r.Context())
+	if err != nil {
+		resErr(w, 404, fmt.Sprintf("No feeds found: %v", err))
+	}
+	resJson(w, 201, DBFeedsToFeeds(feeds))
+}
