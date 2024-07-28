@@ -44,9 +44,13 @@ func main() {
 	}))
 
 	rss := chi.NewRouter()
+
 	rss.Get("/health", handleRes)
 	rss.Get("/err", handleErr)
 	rss.Post("/users", apiConf.handleCreateUser)
+	rss.Get("/users", apiConf.middlewareAuth(apiConf.handleGetUser))
+
+	rss.Post("/feeds", apiConf.middlewareAuth(apiConf.handleCreateFeed))
 
 	router.Mount("/rss", rss)
 

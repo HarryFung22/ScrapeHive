@@ -41,5 +41,38 @@ func (apiCfg *apiConfig) handleCreateUser(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	resJson(w, 201, dbUserToUser(user))
+}
+
+func (apiCfg *apiConfig) handleGetUser(w http.ResponseWriter, r *http.Request, user databse.User) {
 	resJson(w, 200, dbUserToUser(user))
+}
+
+func (apiCfg *apiConfig) handleCreateFeed(w http.ResponseWriter, r *http.Request, user databse.User) {
+	type parameters struct {
+		Name string `json:"name"`
+		URL  string `json:"url"`
+	}
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		resErr(w, 400, fmt.Sprintf("Error parsion JSON: ", err))
+		return
+	}
+
+	feed, err := apiCfg.DB.CreateFeed(r.Context(), databse.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		Name:      params.Name,
+		Url:       params.URL,
+		UserID:    user.ID,
+	})
+	if err != nil {
+		resErr(w, 400, fmt.Sprintf("Couldn't create feed: ", err))
+		return
+	}
+
+	resJson(w, 201, DBFeedToFeed(feed))
 }
