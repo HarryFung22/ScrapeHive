@@ -47,11 +47,16 @@ func main() {
 
 	rss.Get("/health", handleRes)
 	rss.Get("/err", handleErr)
+
 	rss.Post("/users", apiConf.handleCreateUser)
 	rss.Get("/users", apiConf.middlewareAuth(apiConf.handleGetUser))
 
 	rss.Post("/feeds", apiConf.middlewareAuth(apiConf.handleCreateFeed))
 	rss.Get("/feeds", apiConf.handleGetFeeds)
+
+	rss.Post("/feed_follows", apiConf.middlewareAuth((apiConf.handleCreateFeedFollow)))
+	rss.Get("/feed_follows", apiConf.middlewareAuth(apiConf.handleGetFeedFollows))
+	rss.Delete("/feed_follows/{feedFollowID}", apiConf.middlewareAuth(apiConf.handleDeleteFeedFollow))
 
 	router.Mount("/rss", rss)
 

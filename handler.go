@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/harryfung22/ScrapeHive/internal/databse"
 )
@@ -83,4 +84,60 @@ func (apiCfg *apiConfig) handleGetFeeds(w http.ResponseWriter, r *http.Request) 
 		resErr(w, 404, fmt.Sprintf("No feeds found: %v", err))
 	}
 	resJson(w, 201, DBFeedsToFeeds(feeds))
+}
+
+func (apiCfg *apiConfig) handleCreateFeedFollow(w http.ResponseWriter, r *http.Request, user databse.User) {
+	type parameters struct {
+		FeedID uuid.UUID `json:"feed_id"`
+	}
+	decoder := json.NewDecoder(r.Body)
+
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		resErr(w, 400, fmt.Sprintf("Coud: %v", err))
+		return
+	}
+
+	feedFollow, err := apiCfg.DB.CreateFeedFollow(r.Context(), databse.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		UserID:    user.ID,
+		FeedID:    params.FeedID,
+	})
+
+	if err != nil {
+		resErr(w, 400, fmt.Sprintf("Couldn't create feed:  %v", err))
+	}
+	resJson(w, 201, DBFeedFollowToFeedFollow(feedFollow))
+}
+
+func (apiCfg *apiConfig) handleGetFeedFollows(w http.ResponseWriter, r *http.Request, user databse.User) {
+	feedFollows, err := apiCfg.DB.GetFeedFollows(r.Context(), user.ID)
+
+	if err != nil {
+		resErr(w, 400, fmt.Sprintf("Couldn't create feed follows:  %v", err))
+	}
+	resJson(w, 201, DBFeedFollowsToFeedFollows(feedFollows))
+}
+
+func (apiCfg *apiConfig) handleDeleteFeedFollow(w http.ResponseWriter, r *http.Request, user databse.User) {
+	feedFollowID := chi.URLParam(r, "feedFollowID")
+	followID, err := uuid.Parse(feedFollowID)
+	if err != nil {
+		resErr(w, 400, fmt.Sprintf("Couldn't parse feed follow id: %v", err))
+		return
+	}
+
+	err = apiCfg.DB.DeleteFeedFollow(r.Context(), databse.DeleteFeedFollowParams{
+		ID:     followID,
+		UserID: user.ID,
+	})
+	if err != nil {
+		resErr(w, 400, fmt.Sprintf("Couldn't delete feed follow: %v", err))
+		return
+	}
+
+	resJson(w, 200, struct{}{})
 }
