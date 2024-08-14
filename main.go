@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
@@ -64,6 +65,10 @@ func main() {
 		Handler: router,
 		Addr:    ":" + port,
 	}
+
+	const collectionConcurrency = 10
+	const collectionInterval = time.Minute
+	go startScraping(querries, collectionConcurrency, collectionInterval)
 
 	log.Printf("Server starting on port %v", port)
 	er := server.ListenAndServe()
